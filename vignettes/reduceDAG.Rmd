@@ -41,7 +41,7 @@ getUninformativeVariables(g.example)
 ```
 In fact, variables {I, W4} above are called *redundant*, which do not inform the estimation because they are *orthogonal nuisance*. What is truly amazing is variable W1, whose information counter-intuitively "cancels out" by a careful analysis.
 
-Further, we can **project out** the uninformative variables. The following command returns the **reduced DAG** such that all variables are (in general) informative for causal estimation.
+Further, we can **project out** the uninformative variables. The following command returns the **reduced DAG** such that all variables are (in general) informative for estimating the effect of A on Y.
 ```{r, fig.align='center', fig.retina=2, fig.width=4}
 h <- reduceDAG(g.example, verbose = FALSE)
 plot(h)
@@ -52,6 +52,14 @@ On this smaller graph, the counterfactual mean $\mathbb{E} Y(a)$ is identified b
 gFormula(h)
 ```
 If we estimate $\mathbb{E} Y(a)$ with an empirical version of the above formula, which does not depend on {I, W4, W1}, we can still achieve the maximal efficiency in large samples! The reduced DAG is all that we need concerning the effect of A on Y. It tells us that we do not have to collect data on {I, W4, W1}.
+
+Note that this reduction is **specific** for estimating the average treatment of A on Y. What about, say, the effect of W4 on Y? To study this, we need to redefine W4 as the exposure.
+
+```{r}
+exposures(g.example) <- "W4"
+h2 <- reduceDAG(g.example)
+```
+In this case, the original graph cannot be reduced.
 
 Here is another example. 
 ```{r, fig.align='center', fig.retina=2, fig.width=4}
