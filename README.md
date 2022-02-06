@@ -36,10 +36,12 @@ g <- dagitty('dag {
 }')
 plot(g)
 cat(gFormula(g))
+# ∑_{M,Y} Y P[Y | A=a,M] ∑_{O} P(M | A=a,O) P(O)
 h <- reduceDAG(g, verbose=TRUE)
+# Uninformative variables {M} are eliminated.
+# Reduced g-formula:
+# ∑_{O,Y} Y P[Y | A=a,O] P(O) 
 ```
-
-
 
 ## Reference
 
