@@ -47,4 +47,4 @@ h <- reduceDAG(g, verbose=TRUE)
 
 ## Reference
 
-(upcoming...)
+Guo, F. Richard, Emilija Perković and Andrea Rotnitzky. "Variable elimination, graph reduction and efficient g-formula" (2022, working paper).
