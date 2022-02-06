@@ -1,0 +1,60 @@
+---
+title: "Reduced DAG and g-formula for estimating the average causal effect"
+author: Richard Guo
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{reduceDAG}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Let us take a look at the main functions with the built-in examples.
+
+```{r setup}
+library(reduceDAG)
+library(dagitty)
+data("g.example", "g.long")
+```
+
+Let us first look at the following example. 
+```{r, fig.align='center', fig.retina=2, fig.width=4}
+plot(g.example)
+```
+This is a causal directed acyclic graph (DAG): variable A is the treatment (exposure) and variable Y is the outcome. Further, there is no bidirected edge on this graph, which means there is no latent confounder. 
+
+To estimate the counterfactual mean $\mathbb{E} Y(a)$, one can use the g-formula, which can be derived from the graph.
+```{r}
+gFormula(g.example)
+```
+Suppose all variables take only finitely many levels. To estimate the $\mathbb{E} Y(a)$ with maximum **efficiency** (i.e., minimal variance), one can replace every factor $P(\cdot \mid \cdot)$ in the factor by the corresponding empirical $\mathbb{P}_n(\cdot \mid \cdot)$. 
+
+However, perhaps surprisingly, this could be an overkill --- certain variables can be thrown away without affecting the quality of the estimator in large samples. The following command lists all the variables that are **uninformative**.
+```{r}
+getUninformativeVariables(g.example)
+```
+In fact, variables {I, W4} above are called *redundant*, which do not inform the estimation because they are *orthogonal nuisance*. What is truly amazing is variable W1, whose information counter-intuitively "cancels out" by a careful analysis.
+
+Further, we can **project out** the uninformative variables. The following command returns the **reduced DAG** such that all variables are (in general) informative for causal estimation.
+```{r, fig.align='center', fig.retina=2, fig.width=4}
+h <- reduceDAG(g.example, verbose = FALSE)
+plot(h)
+```
+
+On this smaller graph, the counterfactual mean $\mathbb{E} Y(a)$ is identified by a shorter g-formula:
+```{r}
+gFormula(h)
+```
+If we estimate $\mathbb{E} Y(a)$ with an empirical version of the above formula, which does not depend on {I, W4, W1}, we can still achieve the maximal efficiency in large samples! The reduced DAG is all that we need concerning the effect of A on Y. It tells us that we do not have to collect data on {I, W4, W1}.
+
+Here is another example. 
+```{r, fig.align='center', fig.retina=2, fig.width=4}
+plot(g.long)
+f <- reduceDAG(g.long)
+```
